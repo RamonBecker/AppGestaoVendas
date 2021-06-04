@@ -2,15 +2,16 @@ version: '3.1'
 
 services:
 
-  mysql:
+  bd:
     image: mysql:8.0.25
+    cap_add:
+      - SYS_NICE
     container_name: mysql
     ports: 
         - 3306:3306
     environment:
-      MYSQL_USER: gvendas
-      MYSQL_PASSWORD: gvendas
+      MYSQL_USER: vendas
+      MYSQL_PASSWORD: vendas
       MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: gvendas_db
+      MYSQL_DATABASE: vendas_db
       
-
