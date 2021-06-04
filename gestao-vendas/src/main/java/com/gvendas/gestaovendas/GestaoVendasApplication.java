@@ -13,7 +13,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 @EnableJpaRepositories(basePackages = {"com.gvendas.gestaovendas.repository"})
 
 // Serve para colocar os bins, as classes de serviços e de controllers
-@ComponentScan(basePackages = {"com.gvendas.gestaovendas.servico", "com.gvendas.gestaovendas.controlador"})
+@ComponentScan(basePackages = {"com.gvendas.gestaovendas.servico", "com.gvendas.gestaovendas.controlador", "com.gvendas.gestaovendas.excecao"})
 @SpringBootApplication
 public class GestaoVendasApplication {
 
