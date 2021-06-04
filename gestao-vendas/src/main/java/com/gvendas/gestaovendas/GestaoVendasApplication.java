@@ -2,7 +2,18 @@ package com.gvendas.gestaovendas;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
+//Informando aonde esta o pacote das entidades
+@EntityScan(basePackages = {"com.gvendas.gestaovendas.entidades"})
+
+//Informando aonde esta o pacote de repositorio
+@EnableJpaRepositories(basePackages = {"com.gvendas.gestaovendas.repository"})
+
+// Serve para colocar os bins, as classes de serviços e de controllers
+@ComponentScan(basePackages = {"com.gvendas.gestaovendas.servico", "com.gvendas.gestaovendas.controlador"})
 @SpringBootApplication
 public class GestaoVendasApplication {
 
