@@ -48,4 +48,7 @@ public class CategoriaServico {
 		return categoria.get();
 	}
 	
+	public void deletar(Long codigo) {
+		categoriaRepositorio.deleteById(codigo);
+	}
 }
