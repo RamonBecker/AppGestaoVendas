@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,7 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 
 		return handleExceptionInternal(ex, errors, headers, HttpStatus.BAD_REQUEST, request);
 	}
-	
+
 	@ExceptionHandler(RegraNegocioException.class)
 	public ResponseEntity<Object> handleRegraNegocioException(RegraNegocioException ex, WebRequest request) {
 		String msgUsuario = ex.getMessage();
@@ -43,7 +44,17 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 
 	}
 
-	// RegraNegocioException
+	@ExceptionHandler(DataIntegrityViolationException.class)
+	public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex,
+			WebRequest request) {
+
+		String msgUsuario = "Recurso não encontrado";
+		String msgDesenvolvedor = ex.toString();
+
+		List<Error> erros = Arrays.asList(new Error(msgUsuario, msgDesenvolvedor));
+
+		return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
+	}
 
 	@ExceptionHandler(EmptyResultDataAccessException.class)
 	public ResponseEntity<Object> handleEmptyResultDataAccessException(EmptyResultDataAccessException ex,
