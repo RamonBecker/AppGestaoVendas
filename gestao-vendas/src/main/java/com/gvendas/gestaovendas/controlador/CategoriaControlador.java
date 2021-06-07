@@ -52,7 +52,7 @@ public class CategoriaControlador {
 		}
 	}
 	
-	@ApiOperation(value = "Salvar", nickname = "Salvar")
+	@ApiOperation(value = "Salvar", nickname = "salvarCategoria")
 
 	@PostMapping
 	public ResponseEntity<Categoria> salvar(@Valid @RequestBody Categoria categoria) {
