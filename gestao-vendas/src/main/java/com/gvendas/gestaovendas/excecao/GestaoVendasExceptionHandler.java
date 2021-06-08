@@ -24,6 +24,8 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 
 	private static final String CONSTANT_VALIDATION_LENGTH = "Length";
 	private static final String CONSTANT_VALIDATION_NOT_BLANK = "NotBlank";
+	private static final String CONSTANT_VALIDATION_NOT_NULL = "NotNull";
+
 
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -92,6 +94,9 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 		if (fieldError.getCode().equals(CONSTANT_VALIDATION_LENGTH)) {
 			return fieldError.getDefaultMessage().concat(String.format(" deve ter entre %s e %s caracteres",
 					fieldError.getArguments()[2], fieldError.getArguments()[1]));
+		}
+		if (fieldError.getCode().equals(CONSTANT_VALIDATION_NOT_NULL)) {
+			return fieldError.getDefaultMessage().concat(" é obrigatório!");
 		}
 		return fieldError.toString();
 	}
