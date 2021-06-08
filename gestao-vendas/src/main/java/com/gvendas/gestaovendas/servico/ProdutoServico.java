@@ -28,6 +28,12 @@ public class ProdutoServico {
 	public Optional<Produto> buscarPorCodigo(Long codigo, Long codigoCategoria) {
 		return produtoRepositorio.findByCodigoAndCategoriaCodigo(codigo, codigoCategoria);
 	}
+	
+	public void deletar(Long codigoCategoria, Long codigoProduto) {
+		Produto produto = buscarProdutoValido(codigoProduto, codigoCategoria);
+		produtoRepositorio.delete(produto);
+		
+	}
 
 	public Produto salvar(Long codigoCategoria, Produto produto) {
 		verificarCategoriaExistente(codigoCategoria);
