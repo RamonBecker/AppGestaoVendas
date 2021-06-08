@@ -29,8 +29,8 @@ public class ProdutoServico {
 		return produtoRepositorio.findByCodigoAndCategoriaCodigo(codigo, codigoCategoria);
 	}
 
-	public Produto salvar(Produto produto) {
-		verificarCategoriaExistente(produto.getCategoria().getCodigo());
+	public Produto salvar(Long codigoCategoria, Produto produto) {
+		verificarCategoriaExistente(codigoCategoria);
 		verificarProdutoDuplicado(produto);
 		return produtoRepositorio.save(produto);
 	}
