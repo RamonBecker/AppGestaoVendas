@@ -2,6 +2,7 @@ package com.gvendas.gestaovendas.controlador;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gvendas.gestaovendas.dto.produto.ProdutoResponseDTO;
 import com.gvendas.gestaovendas.entidades.Produto;
 import com.gvendas.gestaovendas.servico.ProdutoServico;
 
@@ -34,20 +36,21 @@ public class ProdutoControlador {
 
 	@ApiOperation(value = "Listar todos", nickname = "listarTodos")
 	@GetMapping
-	public List<Produto> listarTodos(Long codigoCategoria) {
-		return produtoServico.listarTodos(codigoCategoria);
+	public List<ProdutoResponseDTO> listarTodos(Long codigoCategoria) {
+		return produtoServico.listarTodos(codigoCategoria).stream()
+				.map(produto -> ProdutoResponseDTO.conversaoParaProdutoDTO(produto)).collect(Collectors.toList());
 	}
 
 	@ApiOperation(value = "Listar por código", nickname = "buscarPorId")
 	@GetMapping("/{codigo}")
-	public ResponseEntity<Optional<Produto>> buscarPorId(@PathVariable Long codigoCategoria,
+	public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable Long codigoCategoria,
 			@PathVariable Long codigo) {
 		Optional<Produto> produtos = produtoServico.buscarPorCodigo(codigo, codigoCategoria);
 
 //
 //		// Verificando se a categoria que será buscado existe no banco de dados
 		if (produtos.isPresent()) {
-			return ResponseEntity.ok(produtos);
+			return ResponseEntity.ok(ProdutoResponseDTO.conversaoParaProdutoDTO(produtos.get()));
 		} else {
 			return ResponseEntity.notFound().build();
 		}
