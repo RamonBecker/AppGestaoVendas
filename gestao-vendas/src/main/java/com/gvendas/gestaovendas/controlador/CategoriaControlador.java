@@ -19,7 +19,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gvendas.gestaovendas.dto.CategoriaResponseDTO;
+import com.gvendas.gestaovendas.dto.categoria.CategoriaRequestDTO;
+import com.gvendas.gestaovendas.dto.categoria.CategoriaResponseDTO;
 import com.gvendas.gestaovendas.entidades.Categoria;
 import com.gvendas.gestaovendas.servico.CategoriaServico;
 
@@ -62,16 +63,16 @@ public class CategoriaControlador {
 	@ApiOperation(value = "Salvar", nickname = "salvarCategoria")
 
 	@PostMapping
-	public ResponseEntity<Categoria> salvar(@Valid @RequestBody Categoria categoria) {
-		Categoria categoriaSalva = categoriaServico.salvar(categoria);
+	public ResponseEntity<CategoriaResponseDTO> salvar(@Valid @RequestBody CategoriaRequestDTO categoriaDTO) {
+		Categoria categoriaSalva = categoriaServico.salvar(categoriaDTO.converterParEntidade());
 
-		return ResponseEntity.status(HttpStatus.CREATED).body(categoriaSalva);
+		return ResponseEntity.status(HttpStatus.CREATED).body(CategoriaResponseDTO.conversaoParaCategoriaDTO(categoriaSalva));
 	}
 
 	@ApiOperation(value = "AtualizarCategoria", nickname = "AtualizarCategoria")
 	@PutMapping("/{codigo}")
-	public ResponseEntity<Categoria> atualizar(@PathVariable Long codigo, @Valid @RequestBody Categoria categoria) {
-		return ResponseEntity.ok(categoriaServico.atualizar(codigo, categoria));
+	public ResponseEntity<Categoria> atualizar(@PathVariable Long codigo, @Valid @RequestBody CategoriaRequestDTO categoriaDTO) {
+		return ResponseEntity.ok(categoriaServico.atualizar(codigo, categoriaDTO.converterParEntidade(codigo)));
 	}
 
 	@ApiOperation(value = "DeletarCategoria", nickname = "DeletarCategoria")
