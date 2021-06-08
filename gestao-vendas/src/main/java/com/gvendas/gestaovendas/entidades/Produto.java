@@ -36,7 +36,7 @@ public class Produto {
 	private Integer quantidade;
 
 	@Column(name = "preco_custo")
-	@NotNull(message = "Preço custp")
+	@NotNull(message = "Preço custo")
 	private BigDecimal precoCusto;
 
 	@Column(name = "preco_venda")

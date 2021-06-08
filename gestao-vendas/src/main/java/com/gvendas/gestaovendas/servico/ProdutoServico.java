@@ -3,7 +3,9 @@ package com.gvendas.gestaovendas.servico;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 import com.gvendas.gestaovendas.entidades.Produto;
@@ -28,22 +30,40 @@ public class ProdutoServico {
 	}
 
 	public Produto salvar(Produto produto) {
-		validarCategoriaExistente(produto.getCategoria().getCodigo());
-		validarProdutoExistente(produto);
+		verificarCategoriaExistente(produto.getCategoria().getCodigo());
+		verificarProdutoDuplicado(produto);
 		return produtoRepositorio.save(produto);
 	}
 
-	private void validarProdutoExistente(Produto produto) {
-		if (produtoRepositorio
-				.findByCategoriaCodigoAndDescricao(produto.getCategoria().getCodigo(), produto.getDescricao())
-				.isPresent()) {
+	private void verificarProdutoDuplicado(Produto produtoAtualizado) {
+		Optional<Produto> produtoAtual = produtoRepositorio.findByCategoriaCodigoAndDescricao(
+				produtoAtualizado.getCategoria().getCodigo(), produtoAtualizado.getDescricao());
+		if (produtoAtual.isPresent() && produtoAtual.get().getCodigo() != produtoAtualizado.getCodigo()) {
 			throw new RegraNegocioException(
-					String.format("O produto %s informado já está cadastrado", produto.getDescricao()));
+					String.format("O produto %s informado já está cadastrado", produtoAtualizado.getDescricao()));
 
 		}
 	}
 
-	private void validarCategoriaExistente(Long codigo) {
+	public Produto atualizar(Long codigoCategoria, Long codigo, Produto produtoAtualizado) {
+		Produto produtoSalvar = buscarProdutoValido(codigo, codigoCategoria);
+		verificarCategoriaExistente(produtoAtualizado.getCategoria().getCodigo());
+		verificarProdutoDuplicado(produtoAtualizado);
+		BeanUtils.copyProperties(produtoAtualizado, produtoSalvar, "codigo");
+
+		return produtoRepositorio.save(produtoAtualizado);
+	}
+
+	private Produto buscarProdutoValido(Long codigo, Long codigoCategoria) {
+		Optional<Produto> produto = buscarPorCodigo(codigo, codigoCategoria);
+
+		if (produto.isEmpty()) {
+			throw new EmptyResultDataAccessException(1);
+		}
+		return produto.get();
+	}
+
+	private void verificarCategoriaExistente(Long codigo) {
 		if (codigo == null) {
 			throw new RegraNegocioException("A categoria não pode ser vazia");
 		}
