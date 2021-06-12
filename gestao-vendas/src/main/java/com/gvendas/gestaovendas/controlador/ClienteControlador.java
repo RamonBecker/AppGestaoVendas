@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gvendas.gestaovendas.dto.cliente.ClienteRequestDTO;
 import com.gvendas.gestaovendas.dto.cliente.ClienteResponseDTO;
 import com.gvendas.gestaovendas.entidades.Cliente;
 import com.gvendas.gestaovendas.servico.ClienteServico;
@@ -43,7 +44,7 @@ public class ClienteControlador {
 				.collect(Collectors.toList());
 	}
 
-	@ApiOperation(value = "Listar por código cliente" , nickname = "buscarPorIdCliente")
+	@ApiOperation(value = "Listar por código cliente", nickname = "buscarPorIdCliente")
 	@GetMapping("/{codigo}")
 	public ResponseEntity<ClienteResponseDTO> buscarPorId(@PathVariable Long codigo) {
 		Optional<Cliente> cliente = clienteServico.buscarPorCodigo(codigo);
@@ -60,13 +61,12 @@ public class ClienteControlador {
 
 	@ApiOperation(value = "Salvar", nickname = "salvarCliente")
 	@PostMapping
-	public ResponseEntity<ClienteResponseDTO> salvar(@Valid @RequestBody Cliente cliente) {
+	public ResponseEntity<ClienteResponseDTO> salvar(@Valid @RequestBody ClienteRequestDTO clienteDTO) {
+		Cliente cliente = clienteDTO.conversaoParEntidade();
 		Cliente clienteSalvo = clienteServico.salvar(cliente);
 
-		ClienteResponseDTO aux_conversao_Cliente_DTO = ClienteResponseDTO
-				.conversaoParaClienteResponseDTO(clienteSalvo);
+		ClienteResponseDTO aux_conversao_Cliente_DTO = ClienteResponseDTO.conversaoParaClienteResponseDTO(clienteSalvo);
 		return ResponseEntity.status(HttpStatus.CREATED).body(aux_conversao_Cliente_DTO);
 	}
 
-	
 }
