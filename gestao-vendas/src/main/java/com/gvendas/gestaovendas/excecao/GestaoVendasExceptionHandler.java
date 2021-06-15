@@ -25,7 +25,7 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 	private static final String CONSTANT_VALIDATION_LENGTH = "Length";
 	private static final String CONSTANT_VALIDATION_NOT_BLANK = "NotBlank";
 	private static final String CONSTANT_VALIDATION_NOT_NULL = "NotNull";
-
+	private static final String CONSTANT_VALIDATION_PATTERN = "Pattern";
 
 	@Override
 	protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex,
@@ -40,8 +40,7 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 	public ResponseEntity<Object> handleRegraNegocioException(RegraNegocioException ex, WebRequest request) {
 		String msgUsuario = ex.getMessage();
 		String msgDesenvolvedor = ex.getMessage();
-		
-		
+
 		List<Error> erros = Arrays.asList(new Error(msgUsuario, msgDesenvolvedor));
 		return handleExceptionInternal(ex, erros, new HttpHeaders(), HttpStatus.BAD_REQUEST, request);
 
@@ -97,6 +96,9 @@ public class GestaoVendasExceptionHandler extends ResponseEntityExceptionHandler
 		}
 		if (fieldError.getCode().equals(CONSTANT_VALIDATION_NOT_NULL)) {
 			return fieldError.getDefaultMessage().concat(" é obrigatório!");
+		}
+		if (fieldError.getCode().equals(CONSTANT_VALIDATION_PATTERN)) {
+			return fieldError.getDefaultMessage().concat(" formato inválido!");
 		}
 		return fieldError.toString();
 	}
