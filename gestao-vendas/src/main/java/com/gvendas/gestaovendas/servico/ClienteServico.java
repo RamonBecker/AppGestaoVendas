@@ -38,6 +38,10 @@ public class ClienteServico {
 		BeanUtils.copyProperties(clienteAtualizado, clienteAntigo, "codigo");
 		return clienteRepositorio.save(clienteAntigo);
 	}
+	
+	public void deletar(Long codigo) {
+		clienteRepositorio.deleteById(codigo);
+	}
 
 	private Cliente validarClienteExistente(Long codigo) {
 		Optional<Cliente> cliente = buscarPorCodigo(codigo);
