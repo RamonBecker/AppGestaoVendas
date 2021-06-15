@@ -42,6 +42,14 @@ public class ClienteRequestDTO {
 
 		return new Cliente(nome, telefone, ativo, endereco);
 	}
+	
+	public Cliente conversaoParEntidade(Long codigo) {
+		Endereco endereco = new Endereco(enderecoRequestDTO.getLogradouro(), enderecoRequestDTO.getNumero(),
+				enderecoRequestDTO.getComplemento(), enderecoRequestDTO.getBairro(), enderecoRequestDTO.getCep(),
+				enderecoRequestDTO.getCidade(), enderecoRequestDTO.getEstado());
+
+		return new Cliente(codigo, nome, telefone, ativo, endereco);
+	}
 
 	public String getNome() {
 		return nome;

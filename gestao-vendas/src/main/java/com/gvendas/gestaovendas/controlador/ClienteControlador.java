@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -69,4 +70,12 @@ public class ClienteControlador {
 		return ResponseEntity.status(HttpStatus.CREATED).body(aux_conversao_Cliente_DTO);
 	}
 
+	@PutMapping("/{codigo}")
+	public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Long codigo, @Valid @RequestBody ClienteRequestDTO clienteDTO) {
+		Cliente clienteAtualizado = clienteServico.atualizar(codigo, clienteDTO.conversaoParEntidade(codigo));
+		ClienteResponseDTO aux_conversao_Cliente_DTO = ClienteResponseDTO
+				.conversaoParaClienteResponseDTO(clienteAtualizado);
+
+		return ResponseEntity.ok(aux_conversao_Cliente_DTO);
+	}
 }
