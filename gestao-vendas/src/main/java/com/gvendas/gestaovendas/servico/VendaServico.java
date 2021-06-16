@@ -1,5 +1,6 @@
 package com.gvendas.gestaovendas.servico;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +42,24 @@ public class VendaServico {
 
 		return new ClienteVendaResponseDTO(cliente.getNome(), vendaResponseDTOLIST);
 
+	}
+
+	public ClienteVendaResponseDTO listarVendaPorCodigo(Long codigoVenda) {
+		Venda venda = validarVendaExistente(codigoVenda);
+
+		ClienteVendaResponseDTO clienteVendaResponseDTO = new ClienteVendaResponseDTO(venda.getCliente().getNome(),
+				Arrays.asList(criacaoVendaReponseDTO(venda)));
+		return clienteVendaResponseDTO;
+
+	}
+
+	private Venda validarVendaExistente(Long codigoVenda) {
+		Optional<Venda> venda = vendaRepositorio.findById(codigoVenda);
+
+		if (venda.isEmpty() || venda == null) {
+			throw new RegraNegocioException(String.format("Venda de codigo %s não encontrada", codigoVenda));
+		}
+		return venda.get();
 	}
 
 	private Cliente validarClienteExistente(Long codigoCliente) {
