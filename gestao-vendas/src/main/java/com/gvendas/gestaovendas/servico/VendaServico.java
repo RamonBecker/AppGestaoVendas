@@ -9,9 +9,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gvendas.gestaovendas.dto.venda.ClienteVendaResponseDTO;
+import com.gvendas.gestaovendas.dto.venda.ItemVendaRequestDTO;
+import com.gvendas.gestaovendas.dto.venda.VendaRequestDTO;
 import com.gvendas.gestaovendas.dto.venda.VendaResponseDTO;
 import com.gvendas.gestaovendas.entidades.Cliente;
 import com.gvendas.gestaovendas.entidades.ItemVenda;
+import com.gvendas.gestaovendas.entidades.Produto;
 import com.gvendas.gestaovendas.entidades.Venda;
 import com.gvendas.gestaovendas.excecao.RegraNegocioException;
 import com.gvendas.gestaovendas.repository.ItemVendaRepositorio;
@@ -26,19 +29,23 @@ public class VendaServico extends AbstractVendaServico {
 
 	private ItemVendaRepositorio itemVendaRepositorio;
 
+	private ProdutoServico produtoServico;
+
 	@Autowired
 	public VendaServico(ClienteServico clienteServico, VendaRepositorio vendaRepositorio,
-			ItemVendaRepositorio itemVendaRepositorio) {
+			ItemVendaRepositorio itemVendaRepositorio, ProdutoServico produtoServico) {
 		this.clienteServico = clienteServico;
 		this.vendaRepositorio = vendaRepositorio;
 		this.itemVendaRepositorio = itemVendaRepositorio;
+		this.produtoServico = produtoServico;
 	}
 
 	public ClienteVendaResponseDTO listarVendaPorCliente(Long codigoCliente) {
 		Cliente cliente = validarClienteExistente(codigoCliente);
 
 		List<VendaResponseDTO> vendaResponseDTOLIST = vendaRepositorio.findByClienteCodigo(codigoCliente).stream()
-				.map(venda -> criacaoVendaReponseDTO(venda, itemVendaRepositorio.findByVendaCodigo(venda.getCodigo()))).collect(Collectors.toList());
+				.map(venda -> criacaoVendaReponseDTO(venda, itemVendaRepositorio.findByVendaCodigo(venda.getCodigo())))
+				.collect(Collectors.toList());
 
 		return new ClienteVendaResponseDTO(cliente.getNome(), vendaResponseDTOLIST);
 
@@ -51,6 +58,35 @@ public class VendaServico extends AbstractVendaServico {
 				Arrays.asList(criacaoVendaReponseDTO(venda, listaItemVenda)));
 		return clienteVendaResponseDTO;
 
+	}
+
+	public ClienteVendaResponseDTO salvar(Long codigoCliente, VendaRequestDTO vendaDTO) {
+		Cliente cliente = validarClienteExistente(codigoCliente);
+		validarProdutoExistente(vendaDTO.getItemVendaDTO());
+		Venda vendaSalva = salvarVenda(cliente, vendaDTO);
+
+		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaCodigo(vendaSalva.getCodigo());
+
+		ClienteVendaResponseDTO clienteVendaResponseDTO = new ClienteVendaResponseDTO(vendaSalva.getCliente().getNome(),
+				Arrays.asList(criacaoVendaReponseDTO(vendaSalva, listaItemVenda)));
+
+		return clienteVendaResponseDTO;
+	}
+
+	private Venda salvarVenda(Cliente cliente, VendaRequestDTO vendaDTO) {
+
+		Venda venda = new Venda(vendaDTO.getData(), cliente);
+		Venda vendaSalva = vendaRepositorio.save(venda);
+
+		vendaDTO.getItemVendaDTO().stream().map(itemVendaDTO -> criarItemVenda(itemVendaDTO, vendaSalva))
+				.forEach(itemVendaRepositorio::save);
+
+		return vendaSalva;
+
+	}
+
+	private void validarProdutoExistente(List<ItemVendaRequestDTO> itemVendaDTO) {
+		itemVendaDTO.forEach(item -> produtoServico.validarProdutoExistente(item.getCodigoProduto()));
 	}
 
 	private Venda validarVendaExistente(Long codigoVenda) {
@@ -72,4 +108,10 @@ public class VendaServico extends AbstractVendaServico {
 		return cliente.get();
 	}
 
+	private ItemVenda criarItemVenda(ItemVendaRequestDTO itemVendaDTO, Venda venda) {
+		Produto produto = new Produto(itemVendaDTO.getCodigoProduto());
+		ItemVenda itemVenda = new ItemVenda(itemVendaDTO.getQuantidade(), itemVendaDTO.getPrecoVendido(), produto,
+				venda);
+		return itemVenda;
+	}
 }

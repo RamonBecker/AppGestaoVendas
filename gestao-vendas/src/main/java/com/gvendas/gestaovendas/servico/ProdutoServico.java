@@ -30,7 +30,7 @@ public class ProdutoServico {
 	}
 	
 	public void deletar(Long codigoCategoria, Long codigoProduto) {
-		Produto produto = buscarProdutoValido(codigoProduto, codigoCategoria);
+		Produto produto = validarProdutoExistente(codigoProduto, codigoCategoria);
 		produtoRepositorio.delete(produto);
 		
 	}
@@ -52,7 +52,7 @@ public class ProdutoServico {
 	}
 
 	public Produto atualizar(Long codigoCategoria, Long codigo, Produto produtoAtualizado) {
-		Produto produtoSalvar = buscarProdutoValido(codigo, codigoCategoria);
+		Produto produtoSalvar = validarProdutoExistente(codigo, codigoCategoria);
 		verificarCategoriaExistente(produtoAtualizado.getCategoria().getCodigo());
 		verificarProdutoDuplicado(produtoAtualizado);
 		BeanUtils.copyProperties(produtoAtualizado, produtoSalvar, "codigo");
@@ -60,14 +60,25 @@ public class ProdutoServico {
 		return produtoRepositorio.save(produtoAtualizado);
 	}
 
-	private Produto buscarProdutoValido(Long codigo, Long codigoCategoria) {
+	private Produto validarProdutoExistente(Long codigo, Long codigoCategoria) {
 		Optional<Produto> produto = buscarPorCodigo(codigo, codigoCategoria);
 
-		if (produto.isEmpty()) {
+		if (produto.isEmpty() || produto == null) {
 			throw new EmptyResultDataAccessException(1);
 		}
 		return produto.get();
 	}
+	
+	protected Produto validarProdutoExistente(Long codigo) {
+		Optional<Produto> produto = produtoRepositorio.findById(codigo);
+		if (produto.isEmpty() || produto == null) {
+			throw new RegraNegocioException(String.format("Produto de código %s não encontrado", codigo));
+		}
+		return produto.get();
+	}
+	
+	
+	
 
 	private void verificarCategoriaExistente(Long codigo) {
 		if (codigo == null) {
