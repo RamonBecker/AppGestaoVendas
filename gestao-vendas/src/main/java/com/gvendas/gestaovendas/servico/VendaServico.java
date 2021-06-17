@@ -1,6 +1,5 @@
 package com.gvendas.gestaovendas.servico;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -14,7 +13,6 @@ import com.gvendas.gestaovendas.dto.venda.VendaRequestDTO;
 import com.gvendas.gestaovendas.dto.venda.VendaResponseDTO;
 import com.gvendas.gestaovendas.entidades.Cliente;
 import com.gvendas.gestaovendas.entidades.ItemVenda;
-import com.gvendas.gestaovendas.entidades.Produto;
 import com.gvendas.gestaovendas.entidades.Venda;
 import com.gvendas.gestaovendas.excecao.RegraNegocioException;
 import com.gvendas.gestaovendas.repository.ItemVendaRepositorio;
@@ -43,8 +41,8 @@ public class VendaServico extends AbstractVendaServico {
 	public ClienteVendaResponseDTO listarVendaPorCliente(Long codigoCliente) {
 		Cliente cliente = validarClienteExistente(codigoCliente);
 
-		List<VendaResponseDTO> vendaResponseDTOLIST = vendaRepositorio.findByClienteCodigo(codigoCliente).stream()
-				.map(venda -> criacaoVendaReponseDTO(venda, itemVendaRepositorio.findByVendaPorCodigo(venda.getCodigo())))
+		List<VendaResponseDTO> vendaResponseDTOLIST = vendaRepositorio.findByClienteCodigo(codigoCliente).stream().map(
+				venda -> criacaoVendaReponseDTO(venda, itemVendaRepositorio.findByVendaPorCodigo(venda.getCodigo())))
 				.collect(Collectors.toList());
 
 		return new ClienteVendaResponseDTO(cliente.getNome(), vendaResponseDTOLIST);
@@ -54,9 +52,8 @@ public class VendaServico extends AbstractVendaServico {
 	public ClienteVendaResponseDTO listarVendaPorCodigo(Long codigoVenda) {
 		Venda venda = validarVendaExistente(codigoVenda);
 		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(codigoVenda);
-		ClienteVendaResponseDTO clienteVendaResponseDTO = new ClienteVendaResponseDTO(venda.getCliente().getNome(),
-				Arrays.asList(criacaoVendaReponseDTO(venda, listaItemVenda)));
-		return clienteVendaResponseDTO;
+
+		return retornarClienteVendaResponseDTO(venda, listaItemVenda);
 
 	}
 
@@ -67,10 +64,7 @@ public class VendaServico extends AbstractVendaServico {
 
 		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(vendaSalva.getCodigo());
 
-		ClienteVendaResponseDTO clienteVendaResponseDTO = new ClienteVendaResponseDTO(vendaSalva.getCliente().getNome(),
-				Arrays.asList(criacaoVendaReponseDTO(vendaSalva, listaItemVenda)));
-
-		return clienteVendaResponseDTO;
+		return retornarClienteVendaResponseDTO(vendaSalva, listaItemVenda);
 	}
 
 	private Venda salvarVenda(Cliente cliente, VendaRequestDTO vendaDTO) {
@@ -108,10 +102,6 @@ public class VendaServico extends AbstractVendaServico {
 		return cliente.get();
 	}
 
-	private ItemVenda criarItemVenda(ItemVendaRequestDTO itemVendaDTO, Venda venda) {
-		Produto produto = new Produto(itemVendaDTO.getCodigoProduto());
-		ItemVenda itemVenda = new ItemVenda(itemVendaDTO.getQuantidade(), itemVendaDTO.getPrecoVendido(), produto,
-				venda);
-		return itemVenda;
-	}
+
+
 }
