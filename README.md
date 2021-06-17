@@ -91,6 +91,8 @@ For Prometheus type: 127.0.0.1:9090
 For Grafana: 127.0.0.1:3000
 ```
 
+![](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)
+
 ```
 git clone https://github.com/RamonBecker/AppSalesManagement.git
 ```
