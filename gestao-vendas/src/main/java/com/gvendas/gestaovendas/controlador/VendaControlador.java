@@ -1,5 +1,7 @@
 package com.gvendas.gestaovendas.controlador;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,7 @@ public class VendaControlador {
 	@ApiOperation(value = "Registrar venda", nickname = "salvarVenda")
 	@PostMapping("/cliente/{codigoCliente}")
 	public ResponseEntity<ClienteVendaResponseDTO> salvar(@PathVariable Long codigoCliente,
-			@RequestBody VendaRequestDTO vendaDTO) {
+			@Valid @RequestBody VendaRequestDTO vendaDTO) {
 
 		ClienteVendaResponseDTO vendaSalva = vendaServico.salvar(codigoCliente, vendaDTO);
 		return ResponseEntity.status(HttpStatus.CREATED).body(vendaSalva);
