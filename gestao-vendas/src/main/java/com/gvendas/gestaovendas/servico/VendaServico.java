@@ -59,6 +59,8 @@ public class VendaServico extends AbstractVendaServico {
 		return retornarClienteVendaResponseDTO(venda, listaItemVenda);
 
 	}
+	
+	
 
 	// Verificando se existe uma transação
 	// ReadOnly = false : não é apenas leitura
@@ -74,6 +76,21 @@ public class VendaServico extends AbstractVendaServico {
 		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(vendaSalva.getCodigo());
 
 		return retornarClienteVendaResponseDTO(vendaSalva, listaItemVenda);
+	}
+	
+	public ClienteVendaResponseDTO atualizar(Long codigoVenda, Long codigoCliente, VendaRequestDTO vendaDTO) {
+		validarVendaExistente(codigoVenda);
+		Cliente cliente = validarClienteExistente(codigoCliente);
+		
+		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(codigoVenda);
+		validarProdutoExisente_e_DevolverEstoque(listaItemVenda);
+		validarProdutoExistenteEAtualizarQuantidade(vendaDTO.getItemVendaDTO());
+		itemVendaRepositorio.deleteAll(listaItemVenda);
+		Venda vendaAtualizada = atualizarVenda(codigoVenda, cliente, vendaDTO);
+		
+		List<ItemVenda> listaItemVendaAtualizada = itemVendaRepositorio.findByVendaPorCodigo(vendaAtualizada.getCodigo());
+		return retornarClienteVendaResponseDTO(vendaAtualizada, listaItemVendaAtualizada);
+		
 	}
 
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
@@ -96,9 +113,23 @@ public class VendaServico extends AbstractVendaServico {
 		});
 	}
 
+	
+	
 	private Venda salvarVenda(Cliente cliente, VendaRequestDTO vendaDTO) {
 
 		Venda venda = new Venda(vendaDTO.getData(), cliente);
+		Venda vendaSalva = vendaRepositorio.save(venda);
+
+		vendaDTO.getItemVendaDTO().stream().map(itemVendaDTO -> criarItemVenda(itemVendaDTO, vendaSalva))
+				.forEach(itemVendaRepositorio::save);
+
+		return vendaSalva;
+
+	}
+	
+	private Venda atualizarVenda(Long codigoVenda,Cliente cliente, VendaRequestDTO vendaDTO) {
+
+		Venda venda = new Venda(codigoVenda, vendaDTO.getData(), cliente);
 		Venda vendaSalva = vendaRepositorio.save(venda);
 
 		vendaDTO.getItemVendaDTO().stream().map(itemVendaDTO -> criarItemVenda(itemVendaDTO, vendaSalva))
