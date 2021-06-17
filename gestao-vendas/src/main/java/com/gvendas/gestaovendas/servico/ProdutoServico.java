@@ -79,7 +79,7 @@ public class ProdutoServico {
 		return produto.get();
 	}
 	
-	protected void atualizarQuantidadeProdutoAposVenda(Produto produto) {
+	protected void atualizarQuantidadeEmEstoque(Produto produto) {
 		produtoRepositorio.save(produto);
 	}
 	

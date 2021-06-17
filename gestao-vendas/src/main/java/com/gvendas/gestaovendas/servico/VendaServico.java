@@ -59,11 +59,13 @@ public class VendaServico extends AbstractVendaServico {
 		return retornarClienteVendaResponseDTO(venda, listaItemVenda);
 
 	}
-	//Verificando se existe uma transação
-	//ReadOnly = false : não é apenas leitura
-	//Rollbackfor 
-	//Utilizar esta anotação quando for alterar ou salvar dados em mais de uma tabela
-	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class ) 
+
+	// Verificando se existe uma transação
+	// ReadOnly = false : não é apenas leitura
+	// Rollbackfor
+	// Utilizar esta anotação quando for alterar ou salvar dados em mais de uma
+	// tabela
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
 	public ClienteVendaResponseDTO salvar(Long codigoCliente, VendaRequestDTO vendaDTO) {
 		Cliente cliente = validarClienteExistente(codigoCliente);
 		validarProdutoExistenteEAtualizarQuantidade(vendaDTO.getItemVendaDTO());
@@ -72,6 +74,26 @@ public class VendaServico extends AbstractVendaServico {
 		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(vendaSalva.getCodigo());
 
 		return retornarClienteVendaResponseDTO(vendaSalva, listaItemVenda);
+	}
+
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class)
+	// Este funcionalidade de deletar é como um estorno, onde a quantidade do
+	// produto é devolvida para o estoque original
+	public void deletar(Long codigoVenda) {
+		validarVendaExistente(codigoVenda);
+		List<ItemVenda> itemVenda = itemVendaRepositorio.findByVendaPorCodigo(codigoVenda);
+		validarProdutoExisente_e_DevolverEstoque(itemVenda);
+		itemVendaRepositorio.deleteAll(itemVenda);
+		vendaRepositorio.deleteById(codigoVenda);
+	}
+
+	private void validarProdutoExisente_e_DevolverEstoque(List<ItemVenda> itemVenda) {
+		itemVenda.forEach(item -> {
+			Produto produto = produtoServico.validarProdutoExistente(item.getProduto().getCodigo());
+			produto.setQuantidade(produto.getQuantidade() + item.getQuantidade());
+			produtoServico.atualizarQuantidadeEmEstoque(produto);
+
+		});
 	}
 
 	private Venda salvarVenda(Cliente cliente, VendaRequestDTO vendaDTO) {
@@ -91,7 +113,7 @@ public class VendaServico extends AbstractVendaServico {
 			Produto produto = produtoServico.validarProdutoExistente(item.getCodigoProduto());
 			validarQuantidadeProdutoExistente(produto, item.getQuantidade());
 			produto.setQuantidade(produto.getQuantidade() - item.getQuantidade());
-			produtoServico.atualizarQuantidadeProdutoAposVenda(produto);
+			produtoServico.atualizarQuantidadeEmEstoque(produto);
 		});
 	}
 
