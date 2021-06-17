@@ -40,6 +40,8 @@ public class ProdutoServico {
 		verificarProdutoDuplicado(produto);
 		return produtoRepositorio.save(produto);
 	}
+	
+	
 
 	private void verificarProdutoDuplicado(Produto produtoAtualizado) {
 		Optional<Produto> produtoAtual = produtoRepositorio.findByCategoriaCodigoAndDescricao(
@@ -77,7 +79,9 @@ public class ProdutoServico {
 		return produto.get();
 	}
 	
-	
+	protected void atualizarQuantidadeProdutoAposVenda(Produto produto) {
+		produtoRepositorio.save(produto);
+	}
 	
 
 	private void verificarCategoriaExistente(Long codigo) {

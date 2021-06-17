@@ -13,6 +13,7 @@ import com.gvendas.gestaovendas.dto.venda.VendaRequestDTO;
 import com.gvendas.gestaovendas.dto.venda.VendaResponseDTO;
 import com.gvendas.gestaovendas.entidades.Cliente;
 import com.gvendas.gestaovendas.entidades.ItemVenda;
+import com.gvendas.gestaovendas.entidades.Produto;
 import com.gvendas.gestaovendas.entidades.Venda;
 import com.gvendas.gestaovendas.excecao.RegraNegocioException;
 import com.gvendas.gestaovendas.repository.ItemVendaRepositorio;
@@ -59,7 +60,7 @@ public class VendaServico extends AbstractVendaServico {
 
 	public ClienteVendaResponseDTO salvar(Long codigoCliente, VendaRequestDTO vendaDTO) {
 		Cliente cliente = validarClienteExistente(codigoCliente);
-		validarProdutoExistente(vendaDTO.getItemVendaDTO());
+		validarProdutoExistenteEAtualizarQuantidade(vendaDTO.getItemVendaDTO());
 		Venda vendaSalva = salvarVenda(cliente, vendaDTO);
 
 		List<ItemVenda> listaItemVenda = itemVendaRepositorio.findByVendaPorCodigo(vendaSalva.getCodigo());
@@ -79,8 +80,13 @@ public class VendaServico extends AbstractVendaServico {
 
 	}
 
-	private void validarProdutoExistente(List<ItemVendaRequestDTO> itemVendaDTO) {
-		itemVendaDTO.forEach(item -> produtoServico.validarProdutoExistente(item.getCodigoProduto()));
+	private void validarProdutoExistenteEAtualizarQuantidade(List<ItemVendaRequestDTO> itemVendaDTO) {
+		itemVendaDTO.forEach(item -> {
+			Produto produto = produtoServico.validarProdutoExistente(item.getCodigoProduto());
+			validarQuantidadeProdutoExistente(produto, item.getQuantidade());
+			produto.setQuantidade(produto.getQuantidade() - item.getQuantidade());
+			produtoServico.atualizarQuantidadeProdutoAposVenda(produto);
+		});
 	}
 
 	private Venda validarVendaExistente(Long codigoVenda) {
@@ -102,6 +108,12 @@ public class VendaServico extends AbstractVendaServico {
 		return cliente.get();
 	}
 
-
+	private void validarQuantidadeProdutoExistente(Produto produto, Integer quantidadeVendaDTO) {
+		if (!(produto.getQuantidade() >= quantidadeVendaDTO)) {
+			throw new RegraNegocioException(
+					String.format("A quantidade %s informada para o produto %s não está disponível em estoque",
+							quantidadeVendaDTO, produto.getDescricao()));
+		}
+	}
 
 }
