@@ -56,6 +56,7 @@ public class Produto {
 		this.observacao = observacao;
 		this.categoria = categoria;
 	}
+	
 
 	public Produto(Long codigo, String descricao, Integer quantidade, BigDecimal precoCusto, BigDecimal precoVenda,
 			String observacao, Categoria categoria) {
