@@ -66,7 +66,11 @@ mysql -u root -p
 ## Project execution
 
 In order to run the project, you must go into the project folder where the docker-compose file is and run the following command to start the docker.
+In the file of prometheus.yml you must put your ip of your machine.
 
+```
+Where is it - targets: ['0.0.0.0:8080'] replace the zeros with your ip address
+```
 
 Before running docker-compose you must stop the MYSQL service, as the port that was configured in the docker for MYSQL is 3000. If the MYSQL service is not stopped there will be a conflict and the docker will not be executed. Enter the following command:
 
