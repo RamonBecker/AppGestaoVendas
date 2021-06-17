@@ -70,6 +70,5 @@ public class VendaControlador {
 		ClienteVendaResponseDTO vendaSalva = vendaServico.atualizar(codigoVenda, codigoCliente, vendaDTO);
 		
 		return ResponseEntity.ok(vendaSalva);
-	//	return ResponseEntity.status(HttpStatus.CREATED).body(vendaSalva);
 	}
 }
