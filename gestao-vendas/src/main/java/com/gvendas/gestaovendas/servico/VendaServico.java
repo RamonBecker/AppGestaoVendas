@@ -6,6 +6,8 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.gvendas.gestaovendas.dto.venda.ClienteVendaResponseDTO;
 import com.gvendas.gestaovendas.dto.venda.ItemVendaRequestDTO;
@@ -57,7 +59,11 @@ public class VendaServico extends AbstractVendaServico {
 		return retornarClienteVendaResponseDTO(venda, listaItemVenda);
 
 	}
-
+	//Verificando se existe uma transação
+	//ReadOnly = false : não é apenas leitura
+	//Rollbackfor 
+	//Utilizar esta anotação quando for alterar ou salvar dados em mais de uma tabela
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = Exception.class ) 
 	public ClienteVendaResponseDTO salvar(Long codigoCliente, VendaRequestDTO vendaDTO) {
 		Cliente cliente = validarClienteExistente(codigoCliente);
 		validarProdutoExistenteEAtualizarQuantidade(vendaDTO.getItemVendaDTO());
