@@ -112,7 +112,7 @@ or install github https://desktop.github.com/
 - Docker
 - Prometheus
 - Grafana
-- Sring boot
+- Spring boot
 
 ## :memo: Developed features
 
